@@ -17,4 +17,8 @@ def render(response: Response):
 
     name = response.sender.capitalize()
 
-    print(f"{color}{name}:{C.RESET} {response.text}")
+    if response.mode == ResponseMode.CODE:
+        print(f"{color}{name}:{C.RESET}")
+        print(response.text)
+    else:
+        print(f"{color}{name}:{C.RESET} {response.text}")
