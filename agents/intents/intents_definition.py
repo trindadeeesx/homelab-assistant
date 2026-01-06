@@ -1,11 +1,22 @@
 import os
+import platform
 import shutil
 import socket
 import time
 
 import psutil
+from pygments.token import Keyword
 
 from .intents import intent
+
+"""
+
+        DOMINUS
+
+"""
+
+
+# NETWORKS
 
 
 @intent("dominus", "network", keywords=["ip", "meu ip", "endereço de ip", "addr"])
@@ -18,6 +29,17 @@ def get_ip(payload=None):
         return f"IP atual: {ip}"
     except Exception:
         return "IP desconhecido"
+
+
+@intent("dominus", "network", keywords=["hostname", "host"])
+def get_hostname(payload=None):
+    return f"Host: {socket.gethostname()}"
+
+
+# ---------
+
+
+# SYSTEM
 
 
 @intent("dominus", "system", keywords=["cpu", "processador", "uso de cpu"])
@@ -73,3 +95,30 @@ def get_uptime(payload=None):
     hours = int(delta // 3600)
     minutes = int((delta % 3600) // 60)
     return f"Tempo ligado: {hours}h {minutes}min"
+
+
+@intent("dominus", "system", keywords=["processos", "top cpu", "top memoria"])
+def get_top_processes(payload=None):
+    top_n = payload.get("n", 5) if payload else 5
+    procs = sorted(
+        psutil.process_iter(["pid", "name", "cpu_percent", "memory_info"]),
+        key=lambda p: p.info["cpu_percent"],
+        reverse=True,
+    )[:top_n]
+    lines = [
+        f"{p.info['name']} (PID {p.info['pid']}): CPU {p.info['cpu_percent']}%, RAM {p.info['memory_info'].rss / 1e6:.1f}MB"
+        for p in procs
+    ]
+    return "Top processos:\n" + "\n".join(lines)
+
+
+@intent("dominus", "system", keywords=["os", "sistema"])
+def get_system_info(payload=None):
+    return f"{platform.system()} {platform.release()} ({platform.version()}) - {platform.machine()}"
+
+
+"""
+
+        LUCIA
+
+"""

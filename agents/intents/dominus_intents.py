@@ -1,3 +1,5 @@
+import os
+
 from agents.intents.intents import INTENT_REGISTRY
 
 
@@ -6,14 +8,21 @@ class DominusIntents:
         actions = []
         text_l = text.lower()
 
-        for intent in INTENT_REGISTRY:
-            for keyword in intent["keywords"]:
-                if text_l.startswith(keyword):
-                    rest = text[len(keyword) :].strip()
+        parts = [p.strip() for p in text_l.split(" e ")]
+
+        for p in parts:
+            for intent in INTENT_REGISTRY:
+                matched_keyword = next((k for k in intent["keywords"] if k in p), None)
+                if matched_keyword:
                     payload = {}
 
-                    if rest:
-                        payload["path"] = rest
+                    if intent["func"].__name__ == "get_disk":
+                        path = p.replace(matched_keyword, "").strip()
+
+                        if path:
+                            path = os.path.expanduser(path)
+                            path = os.path.abspath(path)
+                            payload["path"] = path
 
                     actions.append(
                         {
