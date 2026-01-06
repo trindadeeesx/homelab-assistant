@@ -34,17 +34,36 @@ def get_memory(payload=None):
 
 @intent("dominus", "system", keywords=["disco", "espaco em disco", "disk"])
 def get_disk(payload=None):
-    payload = payload or {}
-    path = payload.get("path", "/")
+    path = payload.get("path", "/") if payload else "/"
 
+    # Expande ~ e converte para absoluto
     path = os.path.expanduser(path)
     path = os.path.abspath(path)
 
     if not os.path.exists(path):
-        return f"Caminho não encontrado: '{path}'."
+        return f"Caminho não encontrado: '{path}'"
 
+    # Uso do disco (partição)
     total, used, free = shutil.disk_usage(path)
-    return f"Espaço em '{path}': {round(used / 1e9)}GB usados de {round(total / 1e9)}GB. Espaço livre: {round(free / 1e9)}GB."
+
+    # Uso da pasta específica
+    folder_used = 0
+    for root, dirs, files in os.walk(path):
+        for f in files:
+            try:
+                folder_used += os.path.getsize(os.path.join(root, f))
+            except Exception:
+                pass
+
+    used_gb = round(used / 1e9)
+    free_gb = round(free / 1e9)
+    folder_used_gb = round(folder_used / 1e9, 2)
+
+    return (
+        f"Espaço em '{path}': {used_gb}GB usados de {round(total / 1e9)}GB. "
+        f"Espaço livre: {free_gb}GB. "
+        f"Uso real da pasta: {folder_used_gb}GB"
+    )
 
 
 @intent("dominus", "system", keywords=["uptime", "tempo ligado"])

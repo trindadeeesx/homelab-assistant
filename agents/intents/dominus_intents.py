@@ -5,25 +5,23 @@ class DominusIntents:
     def extract(self, text: str):
         actions = []
         text_l = text.lower()
+
         for intent in INTENT_REGISTRY:
-            if any(k in text_l for k in intent["keywords"]):
-                payload = {}
+            for keyword in intent["keywords"]:
+                if text_l.startswith(keyword):
+                    rest = text[len(keyword) :].strip()
+                    payload = {}
 
-                if intent["func"].__name__ == "get_disk":
-                    for kw in intent["keywords"]:
-                        if kw in text_l:
-                            after = text_l.split(kw)[-1].strip()
-                            if after:
-                                payload["path"] = after
-                            break
+                    if rest:
+                        payload["path"] = rest
 
-                actions.append(
-                    {
-                        "target": intent["target"],
-                        "action": intent["func"].__name__,
-                        "payload": payload,
-                    }
-                )
+                    actions.append(
+                        {
+                            "target": intent["target"],
+                            "action": intent["func"].__name__,
+                            "payload": payload,
+                        }
+                    )
 
         return actions
 
