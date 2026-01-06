@@ -1,3 +1,4 @@
+import os
 import shutil
 import socket
 import time
@@ -33,10 +34,17 @@ def get_memory(payload=None):
 
 @intent("dominus", "system", keywords=["disco", "espaco em disco", "disk"])
 def get_disk(payload=None):
-    print(payload)
-    path = payload.get("path", "/") if payload else "/"
+    payload = payload or {}
+    path = payload.get("path", "/")
+
+    path = os.path.expanduser(path)
+    path = os.path.abspath(path)
+
+    if not os.path.exists(path):
+        return f"Caminho não encontrado: '{path}'."
+
     total, used, free = shutil.disk_usage(path)
-    return f"Espaço em '{path}': {round(used / 1e9)}GB usados de {round(total / 1e9)}GB"
+    return f"Espaço em '{path}': {round(used / 1e9)}GB usados de {round(total / 1e9)}GB. Espaço livre: {round(free / 1e9)}GB."
 
 
 @intent("dominus", "system", keywords=["uptime", "tempo ligado"])
