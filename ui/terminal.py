@@ -20,8 +20,9 @@ def start():
     engine = Engine(Router())
     last_route = None
 
-    print(f"{C.SYSTEM}Dominus & Lucia — terminal{C.RESET}")
-    print(f"{C.SYSTEM}Digite ':q' para sair{C.RESET}\n")
+    print(f"{C.SYSTEM}Dominus & Lucia — Terminal{C.RESET}")
+    print(f"{C.SYSTEM}Digite ':q' para sair.{C.RESET}\n")
+    print(f"{C.SYSTEM}Digite ':h' para mostrar ajuda.{C.RESET}\n")
 
     while True:
         try:
