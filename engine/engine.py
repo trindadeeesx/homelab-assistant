@@ -13,9 +13,11 @@ class Engine:
         self.lucia = Lucia()
 
         self.dominus_intents = DominusIntents()
+        self.last_route = None
 
     def handle(self, text: str) -> list[Response]:
         route = self.router.route(text)
+        self.last_route = route
 
         actions = []
         responses: list[Response] = []
