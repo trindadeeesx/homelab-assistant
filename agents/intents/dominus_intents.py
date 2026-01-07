@@ -4,6 +4,8 @@ from agents.intents.intents import INTENT_REGISTRY
 
 
 class DominusIntents:
+    INTENT_REGISTRY = INTENT_REGISTRY
+
     def extract(self, text: str):
         actions = []
         text_l = text.lower()
