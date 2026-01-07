@@ -8,11 +8,12 @@ from agents.intents import intents_definition
 from agents.intents.dominus_intents import DominusIntents
 from agents.intents.intents import INTENT_REGISTRY
 from engine.engine import Engine
+from ui.render import render
 from ui.style import C
 
 
 def handle_global_command(
-    user_input: str, engine, admin_password: str, last_route=None, history=None
+    user_input: str, engine: Engine, admin_password: str, last_route=None, history=None
 ):
     """
     Retorna True se o comando foi global e já processado.
@@ -137,19 +138,23 @@ def handle_global_command(
         # restart
         elif cmd.startswith(":restart"):
             print(f"{C.WARNING}Sistema será reiniciado...{C.RESET}")
-            time.sleep(3)
+            time.sleep(0.5)
             python = sys.executable
             os.execv(python, [python] + sys.argv)
 
     # snippet / run (LLM + sandbox)
     elif cmd.startswith(":snippet"):
-        parts = cmd.split(maxsplit=1)
-        if len(parts) < 2:
-            print(f"{C.WARNING}Use :snippet <linguagem>{C.RESET}")
+        parts = cmd.split(maxsplit=2)
+        if len(parts) < 3:
+            print(f"{C.WARNING}Use :snippet <linguagem> <prompt>{C.RESET}")
             return True
-        lang = parts[1]
-        print(f"{C.INFO}Gerando snippet em {lang} via LLM...{C.RESET}")
-        # aqui você chamaria sua função de LLM
+        lang, prompt = parts[1], parts[2]
+        print(f"{C.INFO}Gerando snippet em {lang} via LLM...{C.RESET}\n")
+        code = engine.dominus.llm.generate_code(prompt, lang)
+        from engine.contracts import Response, ResponseMode, Senders
+
+        resp = Response(sender=Senders.DOMINUS, mode=ResponseMode.CODE, text=code)
+        render(resp)
         return True
 
     elif cmd.startswith(":run"):
